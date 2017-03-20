@@ -1,4 +1,4 @@
-Ary.each () {
+Ary.map () {
   local -n __ary
   local __block=(block a 'echo "$a"' )
   local __item
