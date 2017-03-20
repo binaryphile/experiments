@@ -2,10 +2,12 @@ Ary.map () {
   local -n __ary
   local __block=(block a 'echo "$a"' )
   local __item
+  local __lambda
   local __retval='=__'
 
   while [[ -n $1 ]]; do
-    [[ $1 == 'block'      ]] && { __block=( "$@" ); shift $#; continue ;}
+    [[ $1 == ':block'     ]] && { __block=( "${1:1}" "${@:2}" ); shift $#; continue ;}
+    [[ $1 == '-block'     ]] && { __block=( "${1:1}" "${@:2}" "$(</dev/stdin)" ); shift $#; continue ;}
     [[ -z $__ary          ]] && { __ary=$1        ; shift   ; continue ;}
     [[ $__retval == '=__' ]] && { __retval=$1     ; shift   ; continue ;}
   done
