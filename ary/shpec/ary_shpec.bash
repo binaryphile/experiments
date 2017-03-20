@@ -35,16 +35,16 @@ describe Ary.map
 
   it "returns the resulting default array with a block"; (
     samples=( zero one )
-    Ary.map samples :block a 'echo "${a^^}"'
+    Ary.map samples block {a,} 'echo "${a^^}"'
     assert equal 'declare -a __='\''([0]="ZERO" [1]="ONE")'\' "$(declare -p __)"
     return "$_shpec_failures" ); (( _shpec_failures += $? )) ||:
   end
 
   it "returns the resulting default array with a heredoc block"; (
     samples=( zero one )
-    Ary.map samples -block a <<'EOS'
+    Ary.map samples block {a,} do <<'end'
       echo "${a^^}"
-EOS
+end
     assert equal 'declare -a __='\''([0]="ZERO" [1]="ONE")'\' "$(declare -p __)"
     return "$_shpec_failures" ); (( _shpec_failures += $? )) ||:
   end
