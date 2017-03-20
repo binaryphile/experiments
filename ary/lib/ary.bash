@@ -1,6 +1,6 @@
 Ary.each () {
   local -n __ary
-  local __block
+  local __block=(block a 'echo "$a"' )
   local __item
   local __retval='=__'
 
@@ -11,9 +11,8 @@ Ary.each () {
   done
 
   [[ $__retval == =* ]] || return
-  __retval=${__retval#?}
+  __retval=${__retval:1}
   eval "$__retval=()"
-  [[ -z $__block ]] && __block=( block a 'echo "$a"' )
 
   for __item in "${__ary[@]}"; do
     eval "$__retval+=( "$("${__block[@]}" "$__item")")"
@@ -25,12 +24,9 @@ block () {
   local __args=( "${@:$(( $#/2 + 2 ))}" )
   local __lambda=${@:$(( $#/2 + 1 )):1}
   local __i
-  local __param
 
-  __i=0
-  for __param in "${__params[@]}"; do
-    local "$__param=${__args[__i]}" || return
-    (( __i++ )) ||:
+  for (( __i = 0; __i < ${#__params[@]}; __i++ )); do
+    local "${__params[__i]}=${__args[__i]}" || return
   done
   eval "$__lambda"
 }
