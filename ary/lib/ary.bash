@@ -2,21 +2,21 @@ Ary.each () {
   local -n __ary
   local __block
   local __item
-  local __retary='&__'
+  local __retval='=__'
 
   while [[ -n $1 ]]; do
     [[ $1 == 'block'      ]] && { __block=( "$@" ); shift $#; continue ;}
     [[ -z $__ary          ]] && { __ary=$1        ; shift   ; continue ;}
-    [[ $__retary == '&__' ]] && { __retary=$1     ; shift   ; continue ;}
+    [[ $__retval == '=__' ]] && { __retval=$1     ; shift   ; continue ;}
   done
 
-  [[ $__retary == '&'* ]] || return
-  __retary=${__retary#?}
-  eval "$__retary=()"
+  [[ $__retval == =* ]] || return
+  __retval=${__retval#?}
+  eval "$__retval=()"
   [[ -z $__block ]] && __block=( block a 'echo "$a"' )
 
   for __item in "${__ary[@]}"; do
-    eval "$__retary+=( "$("${__block[@]}" "$__item")")"
+    eval "$__retval+=( "$("${__block[@]}" "$__item")")"
   done
 }
 

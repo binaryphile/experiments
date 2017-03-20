@@ -22,7 +22,7 @@ describe Ary.each
 
   it "returns the array in a named variable with no block"
     samples=( zero one )
-    Ary.each samples '&results'
+    Ary.each samples =results
     assert equal 'declare -a results='\''([0]="zero" [1]="one")'\' "$(declare -p results)"
   end
 
@@ -42,7 +42,7 @@ describe Ary.each
 
   it "returns the resulting named array with a block"; (
     samples=( zero one )
-    Ary.each samples '&results' block a 'echo "${a^^}"'
+    Ary.each samples =results block a 'echo "${a^^}"'
     assert equal 'declare -a results='\''([0]="ZERO" [1]="ONE")'\' "$(declare -p results)"
     return "$_shpec_failures" ); (( _shpec_failures += $? )) ||:
   end
