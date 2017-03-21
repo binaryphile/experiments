@@ -16,28 +16,27 @@ Ary.each () {
 }
 
 Ary.map () {
-  local -n __ary=$1; shift
+  local -n __vals=$1; shift
   local __block=( block {a,} 'echo -n "$a"' )
-  local __item
-  local __retval
+  local __retvals
+  local __retvar
+  local __val
 
-  [[ -n $1 && $1 != 'block' ]] && { __retval=$1; shift ;}
+  [[ $1 == =*     ]] && { __retvar=$1; shift ;}
+  [[ -z $__retvar ]] && __retvar='=__'
+  __retvar=${__retvar:1}
+  eval "$__retvar"'=()'
 
-  [[ -z $__retval     ]] && __retval='=__'
-  [[ $__retval == =*  ]] || return
-  __retval=${__retval:1}
-  eval "$__retval"'=()'
+  case ${@: -1} in
+    'do'  ) __block=( "${@:1:$(($#-1))}" "$(</dev/stdin)" );;
+    *     ) __block=( "${@:1:$(($#-3))}" "${@: -2:1}"     );;
+  esac
 
-  [[ $1 == 'block'  ]] && {
-    case ${@: -1} in
-      'do'  ) __block=( "${@:1:$(($#-1))}" "$(</dev/stdin)" );;
-      *     ) __block=( "$@"                                );;
-    esac
-  }
-
-  for __item in "${__ary[@]}"; do
-    eval "$__retval"'+=( "$("${__block[@]}" "$__item")" )'
+  for __val in "${__vals[@]}"; do
+    block "${__block[@]}" "$__val"
+    __retvals+=( "$__" )
   done
+  eval "$__retvar"'=( "${__retvals[@]}" )'
 }
 
 block () {
@@ -49,5 +48,6 @@ block () {
   for (( __i = 0; __i < ${#__params[@]}; __i++ )); do
     local "${__params[__i]}=${__args[__i]}" || return
   done
-  eval "$__lambda"
+  [[ $__lambda == *__=* ]] && { eval "$__lambda"; return ;}
+  __=$(eval "$__lambda")
 }
