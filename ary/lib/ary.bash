@@ -1,13 +1,27 @@
+Ary.each () {
+  local -n __ary=$1; shift
+  local __block=( block {a,} 'echo -n "$a"' )
+  local __item
+
+  [[ $1 == 'block'  ]] && {
+    case ${@: -1} in
+      'do'  ) __block=( "${@:1:$(($#-1))}" "$(</dev/stdin)" );;
+      *     ) __block=( "$@"                                );;
+    esac
+  }
+
+  for __item in "${__ary[@]}"; do
+    "${__block[@]}" "$__item"
+  done
+}
+
 Ary.map () {
-  local -n __ary
-  local __block=( block a 'echo "$a"' )
+  local -n __ary=$1; shift
+  local __block=( block {a,} 'echo -n "$a"' )
   local __item
   local __retval
 
-  while [[ -n $1 && $1 != 'block' ]]; do
-    [[ -z $__ary    ]] && { __ary=$1    ; shift ; continue ;}
-    [[ -z $__retval ]] && { __retval=$1 ; shift ;}
-  done
+  [[ -n $1 && $1 != 'block' ]] && { __retval=$1; shift ;}
 
   [[ -z $__retval     ]] && __retval='=__'
   [[ $__retval == =*  ]] || return
@@ -15,8 +29,10 @@ Ary.map () {
   eval "$__retval"'=()'
 
   [[ $1 == 'block'  ]] && {
-    __block=( "$@" )
-    [[ ${__block[-1]} == 'do' ]] && __block=( "${__block[@]:0:$((${#__block[@]}-1))}" "$(</dev/stdin)" )
+    case ${@: -1} in
+      'do'  ) __block=( "${@:1:$(($#-1))}" "$(</dev/stdin)" );;
+      *     ) __block=( "$@"                                );;
+    esac
   }
 
   for __item in "${__ary[@]}"; do

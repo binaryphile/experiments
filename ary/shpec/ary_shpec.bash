@@ -49,3 +49,21 @@ end
     return "$_shpec_failures" ); (( _shpec_failures += $? )) ||:
   end
 end
+
+describe Ary.each
+  it "does the block with a block"
+    samples=( zero one )
+    result=$(Ary.each samples block {a,} 'echo -n "${a^^} "')
+    assert equal 'ZERO ONE ' "$result"
+  end
+
+  it "does the block with a heredoc block"; (
+    samples=( zero one )
+    result=$(Ary.each samples block {a,} do <<'end'
+      echo -n "${a^^} "
+end
+    )
+    assert equal 'ZERO ONE ' "$result"
+    return "$_shpec_failures" ); (( _shpec_failures += $? )) ||:
+  end
+end
